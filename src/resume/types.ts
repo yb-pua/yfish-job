@@ -58,4 +58,42 @@ export interface ParsedResume {
   }>;
   skills: string[];
   selfIntroduction: string;
+  research: Array<{
+    title: string;
+    mentor: string;
+    startDate: string;
+    endDate: string;
+    description: string;
+  }>;
+  publications: Array<{
+    title: string;
+    type: string;
+    number: string;
+    status: string;
+    date: string;
+  }>;
+  certificates: Array<{
+    name: string;
+    number: string;
+    date: string;
+  }>;
+  languages: Array<{
+    name: string;
+    level: string;
+    score: string;
+    date: string;
+  }>;
+  family: Array<{
+    name: string;
+    relation: string;
+    company: string;
+    position: string;
+  }>;
+  campusPositions: Array<{
+    organization: string;
+    role: string;
+    startDate: string;
+    endDate: string;
+    description: string;
+  }>;
 }

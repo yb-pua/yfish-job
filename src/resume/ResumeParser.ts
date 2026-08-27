@@ -71,7 +71,57 @@ const RESUME_PARSE_PROMPT = `你是一个简历信息抽取系统。从简历文
     }
   ],
   "skills": ["技能1", "技能2"],
-  "selfIntroduction": "【逐字复制简历中自我评价/自我介绍的全部内容】"
+  "selfIntroduction": "【逐字复制简历中自我评价/自我介绍的全部内容】",
+  "research": [
+    {
+      "title": "课题/研究方向",
+      "mentor": "导师姓名，没有则空字符串",
+      "startDate": "开始时间",
+      "endDate": "结束时间",
+      "description": "【逐字复制科研经历的全部描述】"
+    }
+  ],
+  "publications": [
+    {
+      "title": "论文/专利/著作名称",
+      "type": "类型（发明专利/实用新型/论文/著作等）",
+      "number": "申请号/公开号/期刊号，没有则空字符串",
+      "status": "状态（实审中/已发表/已授权等）",
+      "date": "申请/发表时间"
+    }
+  ],
+  "certificates": [
+    {
+      "name": "证书名称（CISP/NISP/工信部认证等）",
+      "number": "证书编号，没有则空字符串",
+      "date": "获取时间"
+    }
+  ],
+  "languages": [
+    {
+      "name": "语言名称（英语/其他）",
+      "level": "等级（CET-4/CET-6等）",
+      "score": "分数，没有则空字符串",
+      "date": "获取时间"
+    }
+  ],
+  "family": [
+    {
+      "name": "亲属姓名",
+      "relation": "亲属关系（父亲/母亲等）",
+      "company": "工作单位",
+      "position": "职位"
+    }
+  ],
+  "campusPositions": [
+    {
+      "organization": "组织团体名称（班级/学生会等）",
+      "role": "担任职务",
+      "startDate": "开始时间",
+      "endDate": "结束时间",
+      "description": "职责和成就"
+    }
+  ]
 }
 
 ## 规则
@@ -89,7 +139,13 @@ const RESUME_PARSE_PROMPT = `你是一个简历信息抽取系统。从简历文
 6. 时间格式保持原文中的写法，不要统一转换。
 7. selfIntroduction 对应简历中"自我评价""自我介绍""个人总结"等板块。
 8. skills 提取为扁平数组，每项是一个技术/能力名称。
-9. 只输出 JSON，不要 markdown 代码块、不要解释文字。`;
+9. research 对应"科研经历""研究经历""课题研究"等板块，description 逐字复制。
+10. publications 对应"论文""专利""论著""学术成果"，每篇论文/每件专利一条记录。
+11. certificates 对应"证书""职业资格""技能认证"板块，不含语言证书（语言放 languages）。
+12. languages 对应"语言能力""英语等级"等板块。
+13. family 对应"家庭成员""亲属关系"板块。
+14. campusPositions 对应"学生工作""校内职务""任职经历"板块。
+15. 只输出 JSON，不要 markdown 代码块、不要解释文字。`;
 
 export async function parseResume(
   resume: ExtractedResume,
@@ -135,6 +191,12 @@ export async function parseResume(
   parsed.awards ??= [];
   parsed.skills ??= [];
   parsed.selfIntroduction ??= '';
+  parsed.research ??= [];
+  parsed.publications ??= [];
+  parsed.certificates ??= [];
+  parsed.languages ??= [];
+  parsed.family ??= [];
+  parsed.campusPositions ??= [];
 
   return parsed;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { UserProfile, BasicInfo, Links, Education, Experience, Internship, Project, Award } from '../types';
+import type { UserProfile, BasicInfo, Links, Education, Experience, Internship, Project, Award, Research, Publication, Certificate, Language, FamilyMember, CampusPosition } from '../types';
 import { EMPTY_PROFILE } from '../types';
 
 interface Props {
@@ -126,6 +126,108 @@ const ProfileEditor: React.FC<Props> = ({ profile, onSave }) => {
 
   const removeProject = (index: number) => {
     setForm(prev => ({ ...prev, projects: prev.projects.filter((_, i) => i !== index) }));
+  };
+
+  // ─── Research ───
+  const addResearch = () => {
+    setForm(prev => ({
+      ...prev,
+      research: [...prev.research, { title: '', mentor: '', startDate: '', endDate: '', description: '' }],
+    }));
+  };
+  const updateResearch = (index: number, key: keyof Research, value: string) => {
+    setForm(prev => ({
+      ...prev,
+      research: prev.research.map((r, i) => i === index ? { ...r, [key]: value } : r),
+    }));
+  };
+  const removeResearch = (index: number) => {
+    setForm(prev => ({ ...prev, research: prev.research.filter((_, i) => i !== index) }));
+  };
+
+  // ─── Publications ───
+  const addPublication = () => {
+    setForm(prev => ({
+      ...prev,
+      publications: [...prev.publications, { title: '', type: '', number: '', status: '', date: '' }],
+    }));
+  };
+  const updatePublication = (index: number, key: keyof Publication, value: string) => {
+    setForm(prev => ({
+      ...prev,
+      publications: prev.publications.map((p, i) => i === index ? { ...p, [key]: value } : p),
+    }));
+  };
+  const removePublication = (index: number) => {
+    setForm(prev => ({ ...prev, publications: prev.publications.filter((_, i) => i !== index) }));
+  };
+
+  // ─── Certificates ───
+  const addCertificate = () => {
+    setForm(prev => ({
+      ...prev,
+      certificates: [...prev.certificates, { name: '', number: '', date: '' }],
+    }));
+  };
+  const updateCertificate = (index: number, key: keyof Certificate, value: string) => {
+    setForm(prev => ({
+      ...prev,
+      certificates: prev.certificates.map((c, i) => i === index ? { ...c, [key]: value } : c),
+    }));
+  };
+  const removeCertificate = (index: number) => {
+    setForm(prev => ({ ...prev, certificates: prev.certificates.filter((_, i) => i !== index) }));
+  };
+
+  // ─── Languages ───
+  const addLanguage = () => {
+    setForm(prev => ({
+      ...prev,
+      languages: [...prev.languages, { name: '', level: '', score: '', date: '' }],
+    }));
+  };
+  const updateLanguage = (index: number, key: keyof Language, value: string) => {
+    setForm(prev => ({
+      ...prev,
+      languages: prev.languages.map((l, i) => i === index ? { ...l, [key]: value } : l),
+    }));
+  };
+  const removeLanguage = (index: number) => {
+    setForm(prev => ({ ...prev, languages: prev.languages.filter((_, i) => i !== index) }));
+  };
+
+  // ─── Family ───
+  const addFamily = () => {
+    setForm(prev => ({
+      ...prev,
+      family: [...prev.family, { name: '', relation: '', company: '', position: '' }],
+    }));
+  };
+  const updateFamily = (index: number, key: keyof FamilyMember, value: string) => {
+    setForm(prev => ({
+      ...prev,
+      family: prev.family.map((f, i) => i === index ? { ...f, [key]: value } : f),
+    }));
+  };
+  const removeFamily = (index: number) => {
+    setForm(prev => ({ ...prev, family: prev.family.filter((_, i) => i !== index) }));
+  };
+
+  // ─── Campus Positions ───
+  const addCampusPosition = () => {
+    setForm(prev => ({
+      ...prev,
+      campusPositions: [...prev.campusPositions, { organization: '', role: '', startDate: '', endDate: '', description: '' }],
+    }));
+  };
+  const updateCampusPosition = (index: number, key: keyof CampusPosition, value: string) => {
+    setForm(prev => ({
+      ...prev,
+      campusPositions: prev.campusPositions.map((c, i) => i === index ? { ...c, [key]: value } : c),
+    }));
+  };
+  const removeCampusPosition = (index: number) => {
+    setForm(prev => ({ ...prev, campusPositions: prev.campusPositions.filter((_, i) => i !== index) }));
   };
 
   const handleSave = async () => {
@@ -331,6 +433,156 @@ const ProfileEditor: React.FC<Props> = ({ profile, onSave }) => {
                 placeholder="奖项相关说明..."
                 rows={2}
               />
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* ── Research ── */}
+      <section className="profile-section">
+        <h3 className="section-title">
+          科研经历
+          <button className="add-btn" onClick={addResearch}>+ 添加</button>
+        </h3>
+        {form.research.map((r, i) => (
+          <div key={i} className="list-card">
+            <div className="list-card-header">
+              <span>科研 #{i + 1}</span>
+              <button className="remove-btn" onClick={() => removeResearch(i)}>删除</button>
+            </div>
+            <FieldRow>
+              <Field label="课题/方向" value={r.title} onChange={v => updateResearch(i, 'title', v)} placeholder="研究方向" />
+              <Field label="导师" value={r.mentor} onChange={v => updateResearch(i, 'mentor', v)} placeholder="导师姓名" />
+            </FieldRow>
+            <FieldRow>
+              <Field label="开始时间" value={r.startDate} onChange={v => updateResearch(i, 'startDate', v)} placeholder="2024.09" />
+              <Field label="结束时间" value={r.endDate} onChange={v => updateResearch(i, 'endDate', v)} placeholder="2027.06" />
+            </FieldRow>
+            <div className="field-group">
+              <label>描述</label>
+              <textarea value={r.description} onChange={ev => updateResearch(i, 'description', ev.target.value)} placeholder="研究内容..." rows={3} />
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* ── Publications ── */}
+      <section className="profile-section">
+        <h3 className="section-title">
+          论文/专利/论著
+          <button className="add-btn" onClick={addPublication}>+ 添加</button>
+        </h3>
+        {form.publications.map((p, i) => (
+          <div key={i} className="list-card">
+            <div className="list-card-header">
+              <span>论著 #{i + 1}</span>
+              <button className="remove-btn" onClick={() => removePublication(i)}>删除</button>
+            </div>
+            <Field label="名称" value={p.title} onChange={v => updatePublication(i, 'title', v)} placeholder="论著/专利名称" />
+            <FieldRow>
+              <Field label="类型" value={p.type} onChange={v => updatePublication(i, 'type', v)} placeholder="发明专利/论文/著作" />
+              <Field label="编号" value={p.number} onChange={v => updatePublication(i, 'number', v)} placeholder="申请号/公开号" />
+            </FieldRow>
+            <FieldRow>
+              <Field label="状态" value={p.status} onChange={v => updatePublication(i, 'status', v)} placeholder="实审中/已发表" />
+              <Field label="时间" value={p.date} onChange={v => updatePublication(i, 'date', v)} placeholder="2025.11" />
+            </FieldRow>
+          </div>
+        ))}
+      </section>
+
+      {/* ── Certificates ── */}
+      <section className="profile-section">
+        <h3 className="section-title">
+          证书
+          <button className="add-btn" onClick={addCertificate}>+ 添加</button>
+        </h3>
+        {form.certificates.map((c, i) => (
+          <div key={i} className="list-card">
+            <div className="list-card-header">
+              <span>证书 #{i + 1}</span>
+              <button className="remove-btn" onClick={() => removeCertificate(i)}>删除</button>
+            </div>
+            <Field label="证书名称" value={c.name} onChange={v => updateCertificate(i, 'name', v)} placeholder="CISP/NISP" />
+            <FieldRow>
+              <Field label="证书编号" value={c.number} onChange={v => updateCertificate(i, 'number', v)} placeholder="证书编号" />
+              <Field label="获取时间" value={c.date} onChange={v => updateCertificate(i, 'date', v)} placeholder="2023.09" />
+            </FieldRow>
+          </div>
+        ))}
+      </section>
+
+      {/* ── Languages ── */}
+      <section className="profile-section">
+        <h3 className="section-title">
+          语言能力
+          <button className="add-btn" onClick={addLanguage}>+ 添加</button>
+        </h3>
+        {form.languages.map((l, i) => (
+          <div key={i} className="list-card">
+            <div className="list-card-header">
+              <span>语言 #{i + 1}</span>
+              <button className="remove-btn" onClick={() => removeLanguage(i)}>删除</button>
+            </div>
+            <FieldRow>
+              <Field label="语言" value={l.name} onChange={v => updateLanguage(i, 'name', v)} placeholder="英语" />
+              <Field label="等级" value={l.level} onChange={v => updateLanguage(i, 'level', v)} placeholder="CET-4" />
+            </FieldRow>
+            <FieldRow>
+              <Field label="分数" value={l.score} onChange={v => updateLanguage(i, 'score', v)} placeholder="分数" />
+              <Field label="获取时间" value={l.date} onChange={v => updateLanguage(i, 'date', v)} placeholder="2022.12" />
+            </FieldRow>
+          </div>
+        ))}
+      </section>
+
+      {/* ── Family ── */}
+      <section className="profile-section">
+        <h3 className="section-title">
+          亲属关系
+          <button className="add-btn" onClick={addFamily}>+ 添加</button>
+        </h3>
+        {form.family.map((f, i) => (
+          <div key={i} className="list-card">
+            <div className="list-card-header">
+              <span>亲属 #{i + 1}</span>
+              <button className="remove-btn" onClick={() => removeFamily(i)}>删除</button>
+            </div>
+            <FieldRow>
+              <Field label="姓名" value={f.name} onChange={v => updateFamily(i, 'name', v)} placeholder="姓名" />
+              <Field label="关系" value={f.relation} onChange={v => updateFamily(i, 'relation', v)} placeholder="父亲/母亲" />
+            </FieldRow>
+            <FieldRow>
+              <Field label="工作单位" value={f.company} onChange={v => updateFamily(i, 'company', v)} placeholder="单位" />
+              <Field label="职位" value={f.position} onChange={v => updateFamily(i, 'position', v)} placeholder="职位" />
+            </FieldRow>
+          </div>
+        ))}
+      </section>
+
+      {/* ── Campus Positions ── */}
+      <section className="profile-section">
+        <h3 className="section-title">
+          校内职务
+          <button className="add-btn" onClick={addCampusPosition}>+ 添加</button>
+        </h3>
+        {form.campusPositions.map((c, i) => (
+          <div key={i} className="list-card">
+            <div className="list-card-header">
+              <span>职务 #{i + 1}</span>
+              <button className="remove-btn" onClick={() => removeCampusPosition(i)}>删除</button>
+            </div>
+            <FieldRow>
+              <Field label="组织团体" value={c.organization} onChange={v => updateCampusPosition(i, 'organization', v)} placeholder="班级/学生会" />
+              <Field label="担任职务" value={c.role} onChange={v => updateCampusPosition(i, 'role', v)} placeholder="团支部书记" />
+            </FieldRow>
+            <FieldRow>
+              <Field label="开始时间" value={c.startDate} onChange={v => updateCampusPosition(i, 'startDate', v)} placeholder="2016.12" />
+              <Field label="结束时间" value={c.endDate} onChange={v => updateCampusPosition(i, 'endDate', v)} placeholder="2018.12" />
+            </FieldRow>
+            <div className="field-group">
+              <label>职责和成就</label>
+              <textarea value={c.description} onChange={ev => updateCampusPosition(i, 'description', ev.target.value)} placeholder="职责..." rows={2} />
             </div>
           </div>
         ))}

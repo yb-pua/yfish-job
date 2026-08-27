@@ -34,6 +34,12 @@ export enum ResumeFieldType {
   MARITAL_STATUS = 'MARITAL_STATUS',
   EMERGENCY_CONTACT = 'EMERGENCY_CONTACT',
   EMERGENCY_PHONE = 'EMERGENCY_PHONE',
+  RESEARCH = 'RESEARCH',
+  PUBLICATION = 'PUBLICATION',
+  CERTIFICATE = 'CERTIFICATE',
+  LANGUAGE = 'LANGUAGE',
+  FAMILY = 'FAMILY',
+  CAMPUS_POSITION = 'CAMPUS_POSITION',
   OTHER = 'OTHER',
 }
 
@@ -97,6 +103,50 @@ export interface Award {
   description: string;
 }
 
+export interface Research {
+  title: string;
+  mentor: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+}
+
+export interface Publication {
+  title: string;
+  type: string;
+  number: string;
+  status: string;
+  date: string;
+}
+
+export interface Certificate {
+  name: string;
+  number: string;
+  date: string;
+}
+
+export interface Language {
+  name: string;
+  level: string;
+  score: string;
+  date: string;
+}
+
+export interface FamilyMember {
+  name: string;
+  relation: string;
+  company: string;
+  position: string;
+}
+
+export interface CampusPosition {
+  organization: string;
+  role: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+}
+
 export interface UserProfile {
   basic: BasicInfo;
   links: Links;
@@ -105,6 +155,12 @@ export interface UserProfile {
   internships: Internship[];
   projects: Project[];
   awards: Award[];
+  research: Research[];
+  publications: Publication[];
+  certificates: Certificate[];
+  languages: Language[];
+  family: FamilyMember[];
+  campusPositions: CampusPosition[];
   skills: string[];
   selfIntroduction: string;
 }
@@ -117,6 +173,12 @@ export const EMPTY_PROFILE: UserProfile = {
   internships: [],
   projects: [],
   awards: [],
+  research: [],
+  publications: [],
+  certificates: [],
+  languages: [],
+  family: [],
+  campusPositions: [],
   skills: [],
   selfIntroduction: '',
 };

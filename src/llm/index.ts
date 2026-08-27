@@ -9,6 +9,7 @@ const SYSTEM_PROMPT = `你是一个精确的招聘网站表单填写助手。你
 NAME, PHONE, EMAIL, LOCATION, GENDER, BIRTH_DATE, ID_NUMBER,
 SCHOOL, COLLEGE, MAJOR, DEGREE, GPA, COURSES, GRADUATION_DATE, EDUCATION_START_DATE,
 WORK_EXPERIENCE, INTERNSHIP_EXPERIENCE, PROJECT_EXPERIENCE, AWARD, SKILLS,
+RESEARCH, PUBLICATION, CERTIFICATE, LANGUAGE, FAMILY, CAMPUS_POSITION,
 SELF_INTRODUCTION, CAREER_GOAL, SALARY_EXPECTATION,
 LINKEDIN, GITHUB, PERSONAL_WEBSITE, PORTFOLIO,
 NATIONALITY, ETHNICITY, POLITICAL_STATUS, MARITAL_STATUS,
@@ -38,6 +39,12 @@ OTHER
 - 技能/技术栈/擅长技术 → SKILLS
 - 自我介绍/个人简介/自我评价 → SELF_INTRODUCTION
 - 期望薪资/薪资要求 → SALARY_EXPECTATION
+- 科研经历/研究经历/课题研究/研究方向 → RESEARCH
+- 论文/专利/论著/学术成果 → PUBLICATION
+- 证书/职业资格/技能认证 → CERTIFICATE
+- 语言/英语等级/外语水平 → LANGUAGE
+- 亲属/家庭成员/父母信息 → FAMILY
+- 校内职务/学生工作/任职经历 → CAMPUS_POSITION
 
 ## 匹配规则
 1. 综合利用所有可用属性进行语义匹配：label, placeholder, name, ariaLabel, nearbyText, section 上下文。
@@ -65,6 +72,12 @@ OTHER
 - \`awards[i].name\` \`awards[i].date\` \`awards[i].level\` \`awards[i].description\`
 - \`skills\` （全部技能，逗号分隔）
 - \`selfIntroduction\`
+- \`research[i].title\` \`research[i].mentor\` \`research[i].startDate\` \`research[i].endDate\` \`research[i].description\`
+- \`publications[i].title\` \`publications[i].type\` \`publications[i].number\` \`publications[i].status\` \`publications[i].date\`
+- \`certificates[i].name\` \`certificates[i].number\` \`certificates[i].date\`
+- \`languages[i].name\` \`languages[i].level\` \`languages[i].score\` \`languages[i].date\`
+- \`family[i].name\` \`family[i].relation\` \`family[i].company\` \`family[i].position\`
+- \`campusPositions[i].organization\` \`campusPositions[i].role\` \`campusPositions[i].startDate\` \`campusPositions[i].endDate\` \`campusPositions[i].description\`
 
 **多条目对应关系**：页面上第 1 段项目对应 \`projects[0].*\`，第 2 段对应 \`projects[1].*\`，依此类推。
 利用字段在页面中的先后顺序和 nearbyText 判断它属于第几段，教育/工作/实习/获奖同理。
@@ -171,6 +184,48 @@ ${profile.projects.map((p, i) =>
     parts.push(`## 获奖经历
 ${profile.awards.map((a, i) =>
   `[awards[${i}]] ${a.name}${a.level ? ` [级别: ${a.level}]` : ''}${a.date ? ` (${a.date})` : ''}`
+).join('\n')}`);
+  }
+
+  if (profile.research.length > 0) {
+    parts.push(`## 科研经历
+${profile.research.map((r, i) =>
+  `[research[${i}]] ${r.title}${r.mentor ? ` | 导师: ${r.mentor}` : ''} (${r.startDate} ~ ${r.endDate})\n  描述摘要: ${preview(r.description)}`
+).join('\n')}`);
+  }
+
+  if (profile.publications.length > 0) {
+    parts.push(`## 论文/专利/论著
+${profile.publications.map((p, i) =>
+  `[publications[${i}]] ${p.title} | 类型: ${p.type || '(空)'} | 编号: ${p.number || '(空)'} | 状态: ${p.status || '(空)'}${p.date ? ` | ${p.date}` : ''}`
+).join('\n')}`);
+  }
+
+  if (profile.certificates.length > 0) {
+    parts.push(`## 证书
+${profile.certificates.map((c, i) =>
+  `[certificates[${i}]] ${c.name}${c.number ? ` | 编号: ${c.number}` : ''}${c.date ? ` | ${c.date}` : ''}`
+).join('\n')}`);
+  }
+
+  if (profile.languages.length > 0) {
+    parts.push(`## 语言能力
+${profile.languages.map((l, i) =>
+  `[languages[${i}]] ${l.name} | 等级: ${l.level || '(空)'} | 分数: ${l.score || '(空)'}${l.date ? ` | ${l.date}` : ''}`
+).join('\n')}`);
+  }
+
+  if (profile.family.length > 0) {
+    parts.push(`## 亲属关系
+${profile.family.map((f, i) =>
+  `[family[${i}]] ${f.name} | 关系: ${f.relation || '(空)'} | 单位: ${f.company || '(空)'} | 职位: ${f.position || '(空)'}`
+).join('\n')}`);
+  }
+
+  if (profile.campusPositions.length > 0) {
+    parts.push(`## 校内职务
+${profile.campusPositions.map((c, i) =>
+  `[campusPositions[${i}]] ${c.organization} - ${c.role} (${c.startDate} ~ ${c.endDate})\n  描述摘要: ${preview(c.description)}`
 ).join('\n')}`);
   }
 

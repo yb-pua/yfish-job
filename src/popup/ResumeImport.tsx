@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import type { UserProfile, ApiConfig } from '../types';
-import { extractPDFText, parseResume, mapToProfile } from '../resume';
+import { parseResume, mapToProfile } from '../resume';
 import type { ParsedResume } from '../resume';
 import { addImportHistory } from '../storage';
 
-type ImportPhase = 'upload' | 'extracting' | 'parsing' | 'preview' | 'importing' | 'done';
+type ImportPhase = 'input' | 'parsing' | 'preview' | 'importing' | 'done';
 
 interface Props {
   apiConfig: ApiConfig | null;
@@ -12,45 +12,33 @@ interface Props {
 }
 
 const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
-  const [phase, setPhase] = useState<ImportPhase>('upload');
+  const [phase, setPhase] = useState<ImportPhase>('input');
   const [status, setStatus] = useState('');
+  const [text, setText] = useState('');
   const [parsed, setParsed] = useState<ParsedResume | null>(null);
-  const [filename, setFilename] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleParse = async () => {
     if (!apiConfig) {
       setStatus('请先在 API 标签页配置 LLM');
       return;
     }
+    if (!text.trim()) {
+      setStatus('请先粘贴简历文本');
+      return;
+    }
 
-    setFilename(file.name);
+    setPhase('parsing');
+    setStatus(`正在用 AI 解析 ${text.trim().length} 字符的简历...`);
 
     try {
-      setPhase('extracting');
-      setStatus('正在提取 PDF 文本...');
-      const resume = await extractPDFText(file);
-
-      if (!resume.text.trim()) {
-        setStatus('PDF 内容为空或无法提取文本。请确认文件不是扫描件。');
-        setPhase('upload');
-        return;
-      }
-
-      setPhase('parsing');
-      setStatus(`提取到 ${resume.pageCount} 页，共 ${resume.text.length} 字符。正在 AI 解析...`);
-      const result = await parseResume(resume, apiConfig);
-
+      const result = await parseResume({ text: text.trim(), pageCount: 0 }, apiConfig);
       setParsed(result);
       setPhase('preview');
       setStatus('');
     } catch (err) {
       console.error('[ResumeImport] Error:', err);
       setStatus(err instanceof Error ? err.message : '解析失败');
-      setPhase('upload');
+      setPhase('input');
     }
   };
 
@@ -65,13 +53,13 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
       await onImported(profile);
 
       await addImportHistory({
-        filename,
+        filename: '手动粘贴',
         timestamp: Date.now(),
         success: true,
       });
 
       setPhase('done');
-      setStatus('✅ 简历已导入！切换到「简历」标签查看和编辑。');
+      setStatus('简历已导入！切换到「简历」标签查看和编辑。');
     } catch (err) {
       setStatus(err instanceof Error ? err.message : '保存失败');
       setPhase('preview');
@@ -79,44 +67,42 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
   };
 
   const handleReset = () => {
-    setPhase('upload');
+    setPhase('input');
     setParsed(null);
-    setFilename('');
     setStatus('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    setText('');
   };
 
-  // ── Upload Phase ──
-  if (phase === 'upload') {
+  // ── Input Phase ──
+  if (phase === 'input') {
     return (
       <div className="resume-import">
-        <div className="upload-area" onClick={() => fileInputRef.current?.click()}>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf"
-            onChange={handleFile}
-            style={{ display: 'none' }}
+        <p className="upload-hint">
+          直接粘贴简历全文（Word/网页/简历库文本均可），AI 会自动拆解成结构化信息，无需上传 PDF。
+        </p>
+        <div className="field-group">
+          <textarea
+            value={text}
+            onChange={e => setText(e.target.value)}
+            placeholder={'粘贴简历内容，例如：\n\n袁博\n男 | 网络安全工程师\n13324577612 | ybsec@stu.xupt.edu.cn\n\n教育经历\n西安邮电大学 网络信息安全 硕士 2024-2027\n\n...'}
+            rows={10}
           />
-          <div className="upload-icon">📄</div>
-          <p className="upload-title">上传简历 PDF</p>
-          <p className="upload-hint">支持 Word 导出的 PDF，不需要扫描件</p>
         </div>
+        <button className="fill-button" onClick={handleParse}>
+          用 AI 解析简历
+        </button>
         {status && <p className="status status-error">{status}</p>}
       </div>
     );
   }
 
-  // ── Extracting / Parsing Phase ──
-  if (phase === 'extracting' || phase === 'parsing') {
+  // ── Parsing Phase ──
+  if (phase === 'parsing') {
     return (
       <div className="resume-import">
         <div className="analyzing-screen">
           <div className="spinner" />
           <p>{status}</p>
-          <p className="progress-step">
-            {phase === 'extracting' ? '步骤 1/2: 提取文本' : '步骤 2/2: AI 解析'}
-          </p>
         </div>
       </div>
     );
@@ -128,11 +114,9 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
       <div className="resume-import">
         <div className="preview-header">
           <h3>解析预览</h3>
-          <p className="preview-file">{filename}</p>
         </div>
 
         <div className="resume-preview-list">
-          {/* Basic Info */}
           <SectionPreview title="基本信息" items={[
             ['姓名', parsed.basic?.name],
             ['手机', parsed.basic?.phone],
@@ -144,14 +128,12 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
             ['籍贯', parsed.basic?.nativePlace],
           ]} />
 
-          {/* Links */}
           <SectionPreview title="个人链接" items={[
             ['GitHub', parsed.links?.github],
             ['LinkedIn', parsed.links?.linkedin],
             ['个人网站', parsed.links?.website],
           ]} />
 
-          {/* Education */}
           {(parsed.education || []).length > 0 && (
             <div className="profile-section">
               <h3 className="section-title">教育经历 ({parsed.education.length})</h3>
@@ -163,13 +145,11 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
                   </div>
                   {e.college && <div className="list-card-desc">学院: {e.college}</div>}
                   {e.gpa && <div className="list-card-desc">绩点: {e.gpa}</div>}
-                  {e.courses && <div className="list-card-desc">主修课程: {e.courses}</div>}
                 </div>
               ))}
             </div>
           )}
 
-          {/* Experience */}
           {(parsed.experience || []).length > 0 && (
             <div className="profile-section">
               <h3 className="section-title">工作经历 ({parsed.experience.length})</h3>
@@ -185,7 +165,6 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
             </div>
           )}
 
-          {/* Internships */}
           {(parsed.internships || []).length > 0 && (
             <div className="profile-section">
               <h3 className="section-title">实习经历 ({parsed.internships.length})</h3>
@@ -201,14 +180,13 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
             </div>
           )}
 
-          {/* Projects */}
           {(parsed.projects || []).length > 0 && (
             <div className="profile-section">
               <h3 className="section-title">项目经历 ({parsed.projects.length})</h3>
               {parsed.projects.map((p, i) => (
                 <div key={i} className="list-card">
                   <div className="list-card-header">
-                    <span>📁 {p.name}</span>
+                    <span>{p.name}</span>
                     <span className="date-range">{p.startDate} ~ {p.endDate}</span>
                   </div>
                   <p className="list-card-desc">{p.description}</p>
@@ -217,14 +195,104 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
             </div>
           )}
 
-          {/* Awards */}
+          {(parsed.research || []).length > 0 && (
+            <div className="profile-section">
+              <h3 className="section-title">科研经历 ({parsed.research.length})</h3>
+              {parsed.research.map((r, i) => (
+                <div key={i} className="list-card">
+                  <div className="list-card-header">
+                    <span>{r.title}</span>
+                    <span className="date-range">{r.startDate} ~ {r.endDate}</span>
+                  </div>
+                  {r.mentor && <div className="list-card-desc">导师: {r.mentor}</div>}
+                  {r.description && <p className="list-card-desc">{r.description}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(parsed.publications || []).length > 0 && (
+            <div className="profile-section">
+              <h3 className="section-title">论文/专利/论著 ({parsed.publications.length})</h3>
+              {parsed.publications.map((p, i) => (
+                <div key={i} className="list-card">
+                  <div className="list-card-header">
+                    <span>{p.title}</span>
+                    <span className="date-range">{p.date}</span>
+                  </div>
+                  {p.type && <div className="list-card-desc">类型: {p.type}{p.status ? ` · ${p.status}` : ''}</div>}
+                  {p.number && <div className="list-card-desc">编号: {p.number}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(parsed.certificates || []).length > 0 && (
+            <div className="profile-section">
+              <h3 className="section-title">证书 ({parsed.certificates.length})</h3>
+              {parsed.certificates.map((c, i) => (
+                <div key={i} className="list-card">
+                  <div className="list-card-header">
+                    <span>{c.name}</span>
+                    <span className="date-range">{c.date}</span>
+                  </div>
+                  {c.number && <div className="list-card-desc">编号: {c.number}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(parsed.languages || []).length > 0 && (
+            <div className="profile-section">
+              <h3 className="section-title">语言能力 ({parsed.languages.length})</h3>
+              {parsed.languages.map((l, i) => (
+                <div key={i} className="list-card">
+                  <div className="list-card-header">
+                    <span>{l.name} — {l.level}</span>
+                    <span className="date-range">{l.date}</span>
+                  </div>
+                  {l.score && <div className="list-card-desc">分数: {l.score}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(parsed.family || []).length > 0 && (
+            <div className="profile-section">
+              <h3 className="section-title">亲属关系 ({parsed.family.length})</h3>
+              {parsed.family.map((f, i) => (
+                <div key={i} className="list-card">
+                  <div className="list-card-header">
+                    <span>{f.name} — {f.relation}</span>
+                  </div>
+                  <div className="list-card-desc">{f.company}{f.position ? ` · ${f.position}` : ''}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(parsed.campusPositions || []).length > 0 && (
+            <div className="profile-section">
+              <h3 className="section-title">校内职务 ({parsed.campusPositions.length})</h3>
+              {parsed.campusPositions.map((c, i) => (
+                <div key={i} className="list-card">
+                  <div className="list-card-header">
+                    <span>{c.organization} — {c.role}</span>
+                    <span className="date-range">{c.startDate} ~ {c.endDate}</span>
+                  </div>
+                  {c.description && <p className="list-card-desc">{c.description}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+
           {(parsed.awards || []).length > 0 && (
             <div className="profile-section">
               <h3 className="section-title">获奖经历 ({parsed.awards.length})</h3>
               {parsed.awards.map((a, i) => (
                 <div key={i} className="list-card">
                   <div className="list-card-header">
-                    <span>🏆 {a.name}{a.level ? ` [${a.level}]` : ''}</span>
+                    <span>{a.name}{a.level ? ` [${a.level}]` : ''}</span>
                     {a.date && <span className="date-range">{a.date}</span>}
                   </div>
                   {a.description && <p className="list-card-desc">{a.description}</p>}
@@ -233,7 +301,6 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
             </div>
           )}
 
-          {/* Skills */}
           {(parsed.skills || []).length > 0 && (
             <div className="profile-section">
               <h3 className="section-title">技能</h3>
@@ -245,7 +312,6 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
             </div>
           )}
 
-          {/* Self Introduction */}
           {parsed.selfIntroduction && (
             <div className="profile-section">
               <h3 className="section-title">自我评价</h3>
@@ -256,10 +322,10 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
 
         <div className="preview-actions">
           <button className="fill-button" onClick={handleConfirm}>
-            ✅ 确认导入
+            确认导入
           </button>
           <button className="cancel-button" onClick={handleReset}>
-            取消
+            重新粘贴
           </button>
         </div>
       </div>
@@ -272,7 +338,7 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
       <div className="analyzing-screen">
         <p className="status status-success">{status}</p>
         <button className="save-button" onClick={handleReset}>
-          导入另一份简历
+          再导入一份
         </button>
       </div>
     </div>

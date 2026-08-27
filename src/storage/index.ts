@@ -105,6 +105,12 @@ function migrateProfile(raw: unknown): UserProfile {
       internships: [],
       projects: old.projects ? [{ name: '', startDate: '', endDate: '', description: old.projects }] : [],
       awards: [],
+      research: [],
+      publications: [],
+      certificates: [],
+      languages: [],
+      family: [],
+      campusPositions: [],
       skills: [],
       selfIntroduction: '',
     };
@@ -174,6 +180,56 @@ function migrateProfile(raw: unknown): UserProfile {
           date: a.date || '',
           level: a.level || '',
           description: a.description || '',
+        }))
+      : [],
+    research: Array.isArray(p.research)
+      ? p.research.map((r: any) => ({
+          title: r.title || '',
+          mentor: r.mentor || '',
+          startDate: r.startDate || '',
+          endDate: r.endDate || '',
+          description: r.description || '',
+        }))
+      : [],
+    publications: Array.isArray(p.publications)
+      ? p.publications.map((pub: any) => ({
+          title: pub.title || '',
+          type: pub.type || '',
+          number: pub.number || '',
+          status: pub.status || '',
+          date: pub.date || '',
+        }))
+      : [],
+    certificates: Array.isArray(p.certificates)
+      ? p.certificates.map((c: any) => ({
+          name: c.name || '',
+          number: c.number || '',
+          date: c.date || '',
+        }))
+      : [],
+    languages: Array.isArray(p.languages)
+      ? p.languages.map((l: any) => ({
+          name: l.name || '',
+          level: l.level || '',
+          score: l.score || '',
+          date: l.date || '',
+        }))
+      : [],
+    family: Array.isArray(p.family)
+      ? p.family.map((f: any) => ({
+          name: f.name || '',
+          relation: f.relation || '',
+          company: f.company || '',
+          position: f.position || '',
+        }))
+      : [],
+    campusPositions: Array.isArray(p.campusPositions)
+      ? p.campusPositions.map((c: any) => ({
+          organization: c.organization || '',
+          role: c.role || '',
+          startDate: c.startDate || '',
+          endDate: c.endDate || '',
+          description: c.description || '',
         }))
       : [],
     skills: Array.isArray(p.skills) ? p.skills : [],

@@ -25,7 +25,19 @@ import type { UserProfile } from '../types';
  */
 
 const OBJECT_ROOTS = ['basic', 'links'] as const;
-const ARRAY_ROOTS = ['education', 'experience', 'internships', 'projects', 'awards'] as const;
+const ARRAY_ROOTS = [
+  'education',
+  'experience',
+  'internships',
+  'projects',
+  'awards',
+  'research',
+  'publications',
+  'certificates',
+  'languages',
+  'family',
+  'campusPositions',
+] as const;
 
 type ObjectRoot = (typeof OBJECT_ROOTS)[number];
 type ArrayRoot = (typeof ARRAY_ROOTS)[number];
