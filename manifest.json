@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "YFish Job",
+  "version": "1.0.0",
+  "description": "AI 网申自动填写 + 求职投递追踪助手",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "AI Job Filler"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/index.ts"]
+    }
+  ],
+  "background": {
+    "service_worker": "src/background/index.ts"
+  }
+}
