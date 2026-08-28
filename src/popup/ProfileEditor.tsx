@@ -260,6 +260,9 @@ const ProfileEditor: React.FC<Props> = ({ profile, onSave }) => {
           <Field label="政治面貌" value={form.basic.politicalStatus} onChange={v => updateBasic('politicalStatus', v)} placeholder="共青团员" />
           <Field label="籍贯" value={form.basic.nativePlace} onChange={v => updateBasic('nativePlace', v)} placeholder="广东深圳" />
         </FieldRow>
+        <FieldRow>
+          <Field label="身份证号" value={form.basic.idNumber} onChange={v => updateBasic('idNumber', v)} placeholder="610xxxxxxxxxxxxxxx" />
+        </FieldRow>
       </section>
 
       {/* ── Links ── */}

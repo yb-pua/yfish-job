@@ -17,7 +17,8 @@ const RESUME_PARSE_PROMPT = `你是一个简历信息抽取系统。从简历文
     "birthDate": "出生日期，保持原文格式",
     "ethnicity": "民族",
     "politicalStatus": "政治面貌（群众/共青团员/中共党员等）",
-    "nativePlace": "籍贯"
+    "nativePlace": "籍贯",
+    "idNumber": "身份证号"
   },
   "links": {
     "github": "GitHub 链接",
@@ -182,7 +183,7 @@ export async function parseResume(
   }
 
   // Validate structure (defensive defaults)
-  parsed.basic ??= { name: '', phone: '', email: '', gender: '', birthDate: '', ethnicity: '', politicalStatus: '', nativePlace: '' };
+  parsed.basic ??= { name: '', phone: '', email: '', gender: '', birthDate: '', ethnicity: '', politicalStatus: '', nativePlace: '', idNumber: '' };
   parsed.links ??= { github: '', linkedin: '', website: '' };
   parsed.education ??= [];
   parsed.experience ??= [];

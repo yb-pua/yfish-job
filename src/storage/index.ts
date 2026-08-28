@@ -98,6 +98,7 @@ function migrateProfile(raw: unknown): UserProfile {
         ethnicity: '',
         politicalStatus: '',
         nativePlace: '',
+        idNumber: '',
       },
       links: { github: '', linkedin: '', website: '' },
       education: old.school ? [{ school: old.school, college: '', major: old.major || '', degree: old.degree || '', gpa: '', courses: '', startDate: '', endDate: '' }] : [],
@@ -128,6 +129,7 @@ function migrateProfile(raw: unknown): UserProfile {
       ethnicity: p.basic?.ethnicity || '',
       politicalStatus: p.basic?.politicalStatus || '',
       nativePlace: p.basic?.nativePlace || p.basic?.location || '',
+      idNumber: p.basic?.idNumber || '',
     },
     links: {
       github: p.links?.github || '',

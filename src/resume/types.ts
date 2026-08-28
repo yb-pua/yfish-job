@@ -14,6 +14,7 @@ export interface ParsedResume {
     ethnicity: string;
     politicalStatus: string;
     nativePlace: string;
+    idNumber: string;
   };
   links: {
     github: string;

@@ -63,7 +63,7 @@ OTHER
 系统会自动按路径取出原文填写，这样能保证与简历逐字一致。
 
 可用的 ref 路径（严格使用以下格式，下标从 0 开始）：
-- \`basic.name\` \`basic.phone\` \`basic.email\` \`basic.gender\` \`basic.birthDate\` \`basic.ethnicity\` \`basic.politicalStatus\` \`basic.nativePlace\`
+- \`basic.name\` \`basic.phone\` \`basic.email\` \`basic.gender\` \`basic.birthDate\` \`basic.ethnicity\` \`basic.politicalStatus\` \`basic.nativePlace\` \`basic.idNumber\`
 - \`links.github\` \`links.linkedin\` \`links.website\`
 - \`education[i].school\` \`education[i].college\` \`education[i].major\` \`education[i].degree\` \`education[i].gpa\` \`education[i].courses\` \`education[i].startDate\` \`education[i].endDate\`
 - \`experience[i].company\` \`experience[i].role\` \`experience[i].startDate\` \`experience[i].endDate\` \`experience[i].description\`
@@ -143,7 +143,8 @@ function buildProfileText(profile: UserProfile): string {
 出生日期 [basic.birthDate]: ${profile.basic.birthDate}
 民族 [basic.ethnicity]: ${profile.basic.ethnicity}
 政治面貌 [basic.politicalStatus]: ${profile.basic.politicalStatus}
-籍贯 [basic.nativePlace]: ${profile.basic.nativePlace}`);
+籍贯 [basic.nativePlace]: ${profile.basic.nativePlace}
+身份证 [basic.idNumber]: ${profile.basic.idNumber}`);
 
   if (profile.links.github || profile.links.linkedin || profile.links.website) {
     parts.push(`## 个人链接

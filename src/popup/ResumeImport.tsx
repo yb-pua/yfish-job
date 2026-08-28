@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { UserProfile, ApiConfig } from '../types';
-import { parseResume, mapToProfile } from '../resume';
+import { parseResume, mapToProfile, PRESET_PROFILE } from '../resume';
 import type { ParsedResume } from '../resume';
 import { addImportHistory } from '../storage';
 
@@ -73,12 +73,37 @@ const ResumeImport: React.FC<Props> = ({ apiConfig, onImported }) => {
     setText('');
   };
 
+  const handlePresetImport = async () => {
+    setPhase('importing');
+    setStatus('正在导入预设简历...');
+    try {
+      await onImported(PRESET_PROFILE);
+      await addImportHistory({
+        filename: '预设简历（一键导入）',
+        timestamp: Date.now(),
+        success: true,
+      });
+      setPhase('done');
+      setStatus('预设简历已导入！切换到「简历」标签查看和编辑。');
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : '导入失败');
+      setPhase('input');
+    }
+  };
+
   // ── Input Phase ──
   if (phase === 'input') {
     return (
       <div className="resume-import">
+        <button className="fill-button" onClick={handlePresetImport}>
+          ⚡ 一键导入预设简历（袁博）
+        </button>
         <p className="upload-hint">
-          直接粘贴简历全文（Word/网页/简历库文本均可），AI 会自动拆解成结构化信息，无需上传 PDF。
+          已内置完整简历数据（含科研/专利/证书/亲属/身份证等），无需 API Key 即可导入。
+        </p>
+
+        <p className="upload-hint">
+          或直接粘贴简历全文（Word/网页/简历库文本均可），AI 会自动拆解成结构化信息，无需上传 PDF。
         </p>
         <div className="field-group">
           <textarea

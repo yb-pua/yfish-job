@@ -13,6 +13,7 @@ export function mapToProfile(parsed: ParsedResume): UserProfile {
       ethnicity: parsed.basic?.ethnicity || '',
       politicalStatus: parsed.basic?.politicalStatus || '',
       nativePlace: parsed.basic?.nativePlace || '',
+      idNumber: parsed.basic?.idNumber || '',
     },
     links: {
       github: parsed.links?.github || '',

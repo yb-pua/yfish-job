@@ -54,6 +54,7 @@ export interface BasicInfo {
   ethnicity: string;
   politicalStatus: string;
   nativePlace: string;
+  idNumber: string;
 }
 
 export interface Links {
@@ -166,7 +167,7 @@ export interface UserProfile {
 }
 
 export const EMPTY_PROFILE: UserProfile = {
-  basic: { name: '', phone: '', email: '', gender: '', birthDate: '', ethnicity: '', politicalStatus: '', nativePlace: '' },
+  basic: { name: '', phone: '', email: '', gender: '', birthDate: '', ethnicity: '', politicalStatus: '', nativePlace: '', idNumber: '' },
   links: { github: '', linkedin: '', website: '' },
   education: [],
   experience: [],
