@@ -240,7 +240,7 @@ export const PRESET_PROFILE: UserProfile = {
     {
       name: '英语',
       level: 'CET-4（大学英语四级）',
-      score: '311',
+      score: '',
       date: '2022.12',
     },
   ],
